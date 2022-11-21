@@ -21,7 +21,7 @@ csvWriterCPUMM = csv.writer(fileCPUMM, dialect='excel')
 csvWriterCPUMI = csv.writer(fileCPUMI, dialect='excel')
 
 userID = 'rompkoh'
-timeVal = '10:10'
+timeVal = '14:55'
 
 def openCSV():
     MMinitVector = ("manufacturer","customer","shippedTo","shippedToState","shippedDate","custMeterNo",
@@ -91,10 +91,10 @@ def genMIfile():
     print('Arquivos MI gerados -> Meters')
 
     for aux in range(len(cpus)):
-        decVal = int(meters[aux], 16)
+        decVal = int(cpus[aux], 16)
         data = datetime.date.today().strftime("%m/%d/%y")
 
-        vector = (userID, data, timeVal, meters[aux], '', meters[aux], decVal, '', '', '', '', '', '')
+        vector = (userID, data, timeVal, cpus[aux], '', cpus[aux], decVal, '', '', '', '', '', '')
 
         csvWriterCPUMI.writerow(vector)
 
@@ -110,8 +110,8 @@ def genMMfile():
     print('Arquivos MM gerados -> Meters')
 
     for aux in range(len(cpus)):
-        decVal = int(meters[aux], 16)
-        vector = ('', '', '', '', '', meters[aux], decVal, decVal, '', '', '', '', '', '', '', '')
+        decVal = int(cpus[aux], 16)
+        vector = ('', '', '', '', '', cpus[aux], decVal, decVal, '', '', '', '', '', '', '', '')
 
         csvWriterCPUMM.writerow(vector)
 
