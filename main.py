@@ -21,7 +21,9 @@ csvWriterCPUMM = csv.writer(fileCPUMM, dialect='excel')
 csvWriterCPUMI = csv.writer(fileCPUMI, dialect='excel')
 
 userID = 'rompkoh'
-timeVal = '14:55'
+# timeVal = '8:45'
+timeVal = (datetime.datetime.now() + datetime.timedelta(minutes=30)).strftime('%H:%M')
+# print(timeVal)
 
 def openCSV():
     MMinitVector = ("manufacturer","customer","shippedTo","shippedToState","shippedDate","custMeterNo",
