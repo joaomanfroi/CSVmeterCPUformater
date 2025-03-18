@@ -20,10 +20,8 @@ csvWriterMTMI = csv.writer(fileMTMI, dialect='excel')
 csvWriterCPUMM = csv.writer(fileCPUMM, dialect='excel')
 csvWriterCPUMI = csv.writer(fileCPUMI, dialect='excel')
 
-userID = 'rompkoh'
-# timeVal = '8:45'
-timeVal = (datetime.datetime.now() + datetime.timedelta(minutes=30)).strftime('%H:%M')
-# print(timeVal)
+userID = 'manfroij'
+timeVal = (datetime.datetime.now() + datetime.timedelta(minutes=15)).strftime('%H:%M')
 
 def openCSV():
     MMinitVector = ("manufacturer","customer","shippedTo","shippedToState","shippedDate","custMeterNo",
@@ -86,7 +84,7 @@ def genMIfile():
         decVal = int(meters[aux], 16)
         data = datetime.date.today().strftime("%m/%d/%y")
 
-        vector = (userID, data, timeVal, meters[aux], '', meters[aux], decVal, '', '', '', '', '', '')
+        vector = (userID, data, timeVal, meters[aux], '', meters[aux], decVal, '', '', '', '-3:00/NoDST', '', '')
 
         csvWriterMTMI.writerow(vector)
 
@@ -96,7 +94,7 @@ def genMIfile():
         decVal = int(cpus[aux], 16)
         data = datetime.date.today().strftime("%m/%d/%y")
 
-        vector = (userID, data, timeVal, cpus[aux], '', cpus[aux], decVal, '', '', '', '', '', '')
+        vector = (userID, data, timeVal, cpus[aux], '', cpus[aux], decVal, '', '', '', '-3:00/NoDST', '', '')
 
         csvWriterCPUMI.writerow(vector)
 
