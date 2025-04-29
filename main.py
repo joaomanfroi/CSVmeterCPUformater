@@ -2,17 +2,9 @@ import csv
 import datetime
 import os
 
-serial_numbers = []
-
-user_id = 'manfroij'
-time = (datetime.datetime.now() + datetime.timedelta(minutes=15)).strftime('%H:%M')
-date =  datetime.date.today().strftime("%m/%d/%y")
-service_location = 'ped'
-# serviceTimeZone = ''
-service_timezone = '-3:00/NoDST'
-
 def load_serial_numbers() -> bool:
     global serial_numbers
+    serial_numbers = []
     if not os.path.exists('files/serial_numbers.txt'):
         with open('files/serial_numbers.txt', 'w') as file:
             file.write("# Add serial numbers here, one per line, hex format\n")
@@ -20,9 +12,6 @@ def load_serial_numbers() -> bool:
             return False
     try:
         with open('files/serial_numbers.txt', 'r') as file:
-            if len(file.readlines()) == 0:
-                print("Error: serial_numbers.txt is empty. Please add serial numbers.")
-                return False
             for line in file:
                 if not line.startswith('#') and line.strip():
                     if len(line.strip()) != 8 or not all(c in '0123456789ABCDEFabcdef' for c in line.strip()):
@@ -30,7 +19,10 @@ def load_serial_numbers() -> bool:
                             continue
                     if line.strip() not in serial_numbers:
                         serial_numbers.append(line.strip())
-        print("Serial numbers loaded successfully.")
+            if len(serial_numbers) == 0:
+                print("Error: serial_numbers.txt is empty. Please add serial numbers.")
+                return False
+        print("%d Serial numbers loaded successfully." % len(serial_numbers))
         return True
     except IOError:
         print("Error: Unable to read serial_numbers.txt file.")
@@ -65,7 +57,14 @@ def create_csv():
     
 
 def generate_files():
-    global manufacture_writer, installation_writer
+    global serial_numbers
+
+    user_id = 'manfroij'
+    time = (datetime.datetime.now() + datetime.timedelta(minutes=15)).strftime('%H:%M')
+    date =  datetime.date.today().strftime("%m/%d/%y")
+    service_location = 'ped'
+    # serviceTimeZone = ''
+    service_timezone = '-3:00/NoDST'
 
     for serial in serial_numbers:
         manufacture_vector = ('', '', '', '', '', serial, int(serial, 16), int(serial, 16), '', '', '', '', '', '', '', '')
@@ -73,8 +72,9 @@ def generate_files():
 
         manufacture_writer.writerow(manufacture_vector)
         installation_writer.writerow(installation_vector)
-    print('Manufature and Installation files generated successfully.')
+    print('Manufature and Installation CSV files populated successfully.')
 
+print('Starting program...')
 if load_serial_numbers():
     create_csv()
     generate_files()
