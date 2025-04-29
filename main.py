@@ -1,135 +1,82 @@
-import pathlib as path
-import os
 import csv
 import datetime
+import os
 
-metertxtpath = 'files/meterSN.txt'
-cputxtpath = 'files/cpuSN.txt'
-csvmeterMM = 'files/meterMM.csv'
-csvmeterMI = 'files/meterMI.csv'
-csvcpuMM = 'files/cpuMM.csv'
-csvcpuMI = 'files/cpuMI.csv'
+serial_numbers = []
 
-fileMTMM = open(csvmeterMM, 'w', newline="")
-fileMTMI = open(csvmeterMI, 'w', newline="")
-fileCPUMM = open(csvcpuMM, 'w', newline="")
-fileCPUMI = open(csvcpuMI, 'w', newline="")
+user_id = 'manfroij'
+time = (datetime.datetime.now() + datetime.timedelta(minutes=15)).strftime('%H:%M')
+date =  datetime.date.today().strftime("%m/%d/%y")
+service_location = 'ped'
+# serviceTimeZone = ''
+service_timezone = '-3:00/NoDST'
 
-csvWriterMTMM = csv.writer(fileMTMM, dialect='excel')
-csvWriterMTMI = csv.writer(fileMTMI, dialect='excel')
-csvWriterCPUMM = csv.writer(fileCPUMM, dialect='excel')
-csvWriterCPUMI = csv.writer(fileCPUMI, dialect='excel')
-
-userID = 'manfroij'
-timeVal = (datetime.datetime.now() + datetime.timedelta(minutes=15)).strftime('%H:%M')
-
-def openCSV():
-    MMinitVector = ("manufacturer","customer","shippedTo","shippedToState","shippedDate","custMeterNo",
-                    "mfgSerialNumber","amrSerialnumber","kH","numDials","form","base","class","detentMode",
-                    "KM","KMh","edgeSerialNumber")
-
-    MInitVector = ("UserID","InstallationDate","InstallationTime","ChangeOutMeterNo","ChangeOutMeterkWh",
-                   "InstalledMeterNo","InstalledEndpointSN","InstalledMeterkWh","ServiceLatitude","ServiceLongitude",
-                   "ServiceLocation","ServiceTimeZone","TenantGroup")
-
+def load_serial_numbers() -> bool:
+    global serial_numbers
+    if not os.path.exists('files/serial_numbers.txt'):
+        with open('files/serial_numbers.txt', 'w') as file:
+            file.write("# Add serial numbers here, one per line, hex format\n")
+            print("serial_numbers.txt created. Please add serial numbers.")
+            return False
     try:
-        csvWriterMTMM.writerow(MMinitVector)
-        csvWriterMTMI.writerow(MInitVector)
-        csvWriterCPUMM.writerow(MMinitVector)
-        csvWriterCPUMI.writerow(MInitVector)
-        print('Arquivos CSV carregados!')
-    except FileNotFoundError or IOError:
-        print('Error durante gravação do CSV!!')
-
-def opentxtFile():
-    with open(metertxtpath, "r") as meterFD:
-        global meters
-        try:
-            meters = meterFD.readlines()
-        except FileNotFoundError:
-            print("Error during open file or file not exists -> Meter file")
-    print("File opened -> meters")
-
-
-    with open(cputxtpath, "r") as cpuFD:
-        global cpus
-        try:
-            cpus = cpuFD.readlines()
-        except FileNotFoundError:
-            print("Error during open file or file not exists -> CPU file")
-    print("File opened -> cpus")
-
-def checkCPUMeter():
-    for aux in range(len(meters)):
-        if cpus.__contains__(meters[aux]) and (aux <= len(cpus)):
-            print('Erro CPU contem meters:', meters[aux])
-            return True
-            break
-
-        meters[aux] = meters[aux].rstrip()
-
-    for aux in range(len(cpus)):
-        if meters.__contains__(cpus[aux]) and (aux <= len(cpus)):
-            print('Erro meters contem cpus:', cpus[aux])
-            return True
-            break
-
-        cpus[aux] = cpus[aux].strip()
-
-    print("Não temos CPU e meters misturados nos arquivos!!")
-    return False
-
-def genMIfile():
-    for aux in range(len(meters)):
-        decVal = int(meters[aux], 16)
-        data = datetime.date.today().strftime("%m/%d/%y")
-
-        vector = (userID, data, timeVal, meters[aux], '', meters[aux], decVal, '', '', '', '-3:00/NoDST', '', '')
-
-        csvWriterMTMI.writerow(vector)
-
-    print('Arquivos MI gerados -> Meters')
-
-    for aux in range(len(cpus)):
-        decVal = int(cpus[aux], 16)
-        data = datetime.date.today().strftime("%m/%d/%y")
-
-        vector = (userID, data, timeVal, cpus[aux], '', cpus[aux], decVal, '', '', '', '-3:00/NoDST', '', '')
-
-        csvWriterCPUMI.writerow(vector)
-
-    print('Arquivos MI gerados -> CPUS')
-
-def genMMfile():
-    for aux in range(len(meters)):
-        decVal = int(meters[aux], 16)
-        vector = ('', '', '', '', '', meters[aux], decVal, decVal, '', '', '', '', '', '', '', '')
-
-        csvWriterMTMM.writerow(vector)
-
-    print('Arquivos MM gerados -> Meters')
-
-    for aux in range(len(cpus)):
-        decVal = int(cpus[aux], 16)
-        vector = ('', '', '', '', '', cpus[aux], decVal, decVal, '', '', '', '', '', '', '', '')
-
-        csvWriterCPUMM.writerow(vector)
-
-    print('Arquivos MM gerados -> CPUs')
-
-opentxtFile()
-
-if checkCPUMeter() is False:
-    openCSV()
-    genMIfile()
-    genMMfile()
-else:
-    print('             CPUs e Meters misturados!!!!')
+        with open('files/serial_numbers.txt', 'r') as file:
+            if len(file.readlines()) == 0:
+                print("Error: serial_numbers.txt is empty. Please add serial numbers.")
+                return False
+            for line in file:
+                if not line.startswith('#') and line.strip():
+                    if len(line.strip()) != 8 or not all(c in '0123456789ABCDEFabcdef' for c in line.strip()):
+                            print("Invalid serial number: %s" % line.strip())
+                            continue
+                    if line.strip() not in serial_numbers:
+                        serial_numbers.append(line.strip())
+        print("Serial numbers loaded successfully.")
+        return True
+    except IOError:
+        print("Error: Unable to read serial_numbers.txt file.")
+        return False
+    except Exception as e:
+        print("An unexpected error occurred: %s" % str(e))
+        return False
 
 
-# hex = '400A29D4'
-# dec = int(hex, 16)
-#
-# print('valor:->', dec)
+def create_csv():
+    global manufacture_writer, installation_writer
+    try:
+        manufacture_writer = csv.writer(open('files/manufacture_data.csv', 'w', newline=""), dialect='excel')
+        installation_writer = csv.writer(open('files/installation_data.csv', 'w', newline=""), dialect='excel')
 
-# print(datetime.date.today().strftime("%m/%d/%y"))
+        manufacture_header = ("manufacturer","customer","shippedTo","shippedToState","shippedDate","custMeterNo",
+                          "mfgSerialNumber","amrSerialnumber","kH","numDials","form","base","class","detentMode",
+                          "KM","KMh","edgeSerialNumber")
+        installation_header = ("UserID","InstallationDate","InstallationTime","ChangeOutMeterNo","ChangeOutMeterkWh", 
+                           "InstalledMeterNo","InstalledEndpointSN","InstalledMeterkWh","ServiceLatitude","ServiceLongitude",
+                           "ServiceLocation","ServiceTimeZone","TenantGroup")
+        
+        manufacture_writer.writerow(manufacture_header)
+        installation_writer.writerow(installation_header)
+        print('CSV files created successfully.')
+    except FileNotFoundError:
+        print('Error: Unable to create CSV files.')
+    except IOError:
+        print('Error: Unable to write to CSV files.')
+    except Exception as e:
+        print('An unexpected error occurred: %s' % str(e))
+    
+
+def generate_files():
+    global manufacture_writer, installation_writer
+
+    for serial in serial_numbers:
+        manufacture_vector = ('', '', '', '', '', serial, int(serial, 16), int(serial, 16), '', '', '', '', '', '', '', '')
+        installation_vector = (user_id, date, time, serial, '', serial, int(serial, 16), '', '', '', service_location, service_timezone, '')
+
+        manufacture_writer.writerow(manufacture_vector)
+        installation_writer.writerow(installation_vector)
+    print('Manufature and Installation files generated successfully.')
+
+if load_serial_numbers():
+    create_csv()
+    generate_files()
+    print('Ending program...')
+
