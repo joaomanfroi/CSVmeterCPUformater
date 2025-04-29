@@ -6,6 +6,7 @@ def load_serial_numbers() -> bool:
     global serial_numbers
     serial_numbers = []
     if not os.path.exists('files/serial_numbers.txt'):
+        os.makedirs('files', exist_ok=True)
         with open('files/serial_numbers.txt', 'w') as file:
             file.write("# Add serial numbers here, one per line, hex format\n")
             print("serial_numbers.txt created. Please add serial numbers.")
